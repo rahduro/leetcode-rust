@@ -52,6 +52,66 @@ fn test_length_of_lis() {
 	assert_eq!(dp::length_of_lis(vec![]), 0);
 }
 
+#[test]
+#[ignore]
+fn test_max_profit() {
+	assert_eq!(dp::max_profit(vec![1,2,3,0,2]), 3);
+	// assert_eq!(dp::max_profit(vec![]), 0);
+}
+
+#[test]
+// #[ignore]
+fn test_max_coins() {
+	assert_eq!(dp::max_coins(vec![3, 1, 5, 8]), 167);
+}
+
+#[test]
+#[ignore]
+fn test_word_break2() {
+	// let v = vec!["cat", "cats", "and", "sand", "dog"];
+	// let v1 = v.iter().map(|&x| x.to_string()).collect::<Vec<String>>();
+
+	// assert_eq!(dp::word_breaks("catsanddog".to_string(), v1), vec!["cats and dog", "cat sand dog"]);
+	assert_eq!(dp::word_breaks("a".to_string(), vec!["a".to_string()]), vec!["a"]);
+	assert_eq!(dp::word_breaks("ab".to_string(), vec!["a".to_string(), "b".to_string()]), vec!["a b"]);
+
+	let v = vec!["a","aa","aaa","aaaa","aaaaa","aaaaaa","aaaaaaa","aaaaaaaa","aaaaaaaaa","aaaaaaaaaa"];
+	let v1 = v.iter().map(|&x| x.to_string()).collect::<Vec<String>>();
+
+	assert_eq!(dp::word_breaks("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa".to_string(), v1), Vec::<String>::new());
+}
+
+#[test]
+// #[ignore]
+fn test_word_break3() {
+	// let v = vec!["cat", "cats", "and", "sand", "dog"];
+	// let v1 = v.iter().map(|&x| x.to_string()).collect::<Vec<String>>();
+
+	// assert_eq!(dp::word_breaks_last("catsanddog".to_string(), v1), vec!["cats and dog", "cat sand dog"]);
+	assert_eq!(dp::word_breaks_last("a".to_string(), vec!["a".to_string()]), vec!["a"]);
+	assert_eq!(dp::word_breaks_last("ab".to_string(), vec!["a".to_string(), "b".to_string()]), vec!["a b"]);
+
+	let v = vec!["a","aa","aaa","aaaa","aaaaa","aaaaaa","aaaaaaa","aaaaaaaa","aaaaaaaaa","aaaaaaaaaa"];
+	let v1 = v.iter().map(|&x| x.to_string()).collect::<Vec<String>>();
+
+	assert_eq!(dp::word_breaks_last("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa".to_string(), v1), Vec::<String>::new());
+}
+
+#[test]
+fn test_word_break1() {
+	let v = vec!["cats", "dog", "sand", "and", "cat"];
+	let v1 = v.iter().map(|&x| x.to_string()).collect::<Vec<String>>();
+	assert_eq!(dp::word_break("catsandog".to_string(), v1), false);
+
+	assert_eq!(dp::word_break("applepenapple".to_string(), vec!["apple".to_string(), "pen".to_string()]), true);
+	assert_eq!(dp::word_break("leetcode".to_string(), vec!["leet".to_string(), "code".to_string()]), true);
+
+	let v = vec!["cbc","bcda","adb","ddca","bad","bbb","dad","dac","ba","aa","bd","abab","bb","dbda","cb","caccc","d","dd","aadb","cc","b","bcc","bcd","cd","cbca","bbd","ddd","dabb","ab","acd","a","bbcc","cdcbd","cada","dbca","ac","abacd","cba","cdb","dbac","aada","cdcda","cdc","dbc","dbcb","bdb","ddbdd","cadaa","ddbc","babb"];
+	let v1 = v.iter().map(|&x| x.to_string()).collect::<Vec<String>>();
+	assert_eq!(dp::word_break("bccdbacdbdacddabbaaaadababadad".to_string(), v1), true);
+
+}
+
 fn main() {
     println!("Hello, world!");
 }

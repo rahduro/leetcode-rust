@@ -59,23 +59,237 @@ pub fn  num_squares(n: i32) -> i32 {
 }
 
 pub fn max_profit(prices: Vec<i32>) -> i32 {
-	println!("{:?}", prices);
-	return -1
+	use std::cmp;
+	if prices.is_empty() {return 0}
+
+	#[derive(Copy, Clone)]
+	#[derive(Debug)]
+	struct Stock {
+		b:(i32, i32),
+		s:(i32, i32),
+		c:(i32, i32)
+	}
+	let l = prices.len();
+	let mut profits = vec![Stock{b:(0, 0), s:(0, 0),  c:(0, 0)}; l];
+	profits[0].b = (-prices[0], 1);
+
+	// for i in 1 .. l {
+	// 	profits[i].b = cmp::max(profits[i-1].b - prices[i], profits[i-1].c - prices[i]);
+	// 	profits[i].c = cmp::max(cmp::max(profits[i-1].b, profits[i-1].s), profits[i-1].c);
+	// 	profits[i].s = profits[i].c + prices[i];
+	// }
+	println!("{:?}", profits);
+	return -1 //cmp::max(cmp::max(profits[l-1].b, profits[l-1].s), profits[l-1].c)
+}
+
+pub fn word_breaks_last(s: String, word_dict: Vec<String>) -> Vec<String> {
+	use std::collections::HashMap;
+
+	fn rec_find(st: &String, wd: &Vec<String>, store: &mut HashMap<String, Vec<String>>) -> Vec<String> {
+		let mut results = Vec::new();
+		if store.contains_key(st) {
+			return store[st].clone();
+		}
+		if st.is_empty() {
+			results.push("".to_string());
+		}
+		else {
+			for w in wd {
+				let l = w.chars().count();
+				if st.chars().count() >= l && &st[0 .. l] == w {
+					let ans = rec_find(&st[l ..].to_string(), wd, store);
+					for a in ans {
+						if a.is_empty() {
+							results.push(w.to_string());
+						}
+						else {
+							results.push(vec![w.to_string(), a].join(" "));
+						}
+					}
+				}
+			}
+		}
+		store.insert(st.to_string(), results.clone());
+		return results
+	}
+	let mut storage = HashMap::new();
+	return rec_find(&s, &word_dict, &mut storage);
+}
+
+pub fn word_breaks_new(s: String, word_dict: Vec<String>) -> Vec<String> {
+	use std::collections::HashSet;
+	use std::collections::HashMap;
+
+	let mut dic_set = HashSet::new();
+	let mut possible_breaks:HashMap<String, HashSet<String>> = HashMap::new();
+
+	for i in &word_dict {
+		dic_set.insert(i.to_string());
+	}
+	for i in &word_dict {
+		let entry = possible_breaks.entry(i.to_string()).or_insert(HashSet::<String>::new());
+		entry.insert(i.to_string());
+	}
+	let l = s.chars().count();
+
+	// println!("{:?}", possible_breaks);
+
+	for d in 2 ..= l {
+		for i in 0 .. l - d + 1 {
+			for j in i .. i + d - 1 {
+				if possible_breaks.contains_key(&s[i .. j + 1]) && possible_breaks.contains_key(&s[j + 1 .. i + d]) {
+					let mut tmp = HashSet::new();
+					for l in &possible_breaks[&s[i .. j + 1]] {
+						for r in &possible_breaks[&s[j + 1 .. i + d]] {
+							tmp.insert(vec![l.to_string(), r.to_string()].join(" "));
+						}
+					}
+					let entry = possible_breaks.entry(s[i .. i + d].to_string()).or_insert(HashSet::<String>::new());
+					for s in tmp {
+						entry.insert(s);
+					}
+				}
+			}
+		}
+		println!("{}", d);
+		// println!("{:?}", possible_breaks);
+	}
+
+	if possible_breaks.contains_key(&s) {
+		let mut r = Vec::new();
+		for e in &possible_breaks[&s] {
+			r.push(e.to_string());
+		}
+		return r;
+		// return possible_breaks[&s].collect::<Vec<String>>();
+	}
+	return vec![];
 }
 
 pub fn word_breaks(s: String, word_dict: Vec<String>) -> Vec<String> {
-	println!("{:?}, {}", word_dict, s);
-	return vec!["write".to_string(), "something".to_string()]
+	use std::collections::HashSet;
+	use std::collections::HashMap;
+
+	let mut dic_set = HashSet::new();
+	for i in &word_dict {
+		dic_set.insert(i);
+	}
+	let l = s.chars().count();
+	let mut grid = vec![vec![0 as u64; l]; l];
+	let mut possible_breaks:Vec<HashSet<String>> = vec![HashSet::new(); l*l];
+
+	for i in 0 .. l {
+		if dic_set.contains(&s[i .. i + 1].to_string()) {
+			grid[i][i] = 1;
+			possible_breaks[i*l + i].insert(s[i .. i + 1].to_string());
+		}
+	}
+
+	fn cartesian_prod(lv:&HashSet<String>, rv:&HashSet<String>) -> HashSet<String> {
+		let mut results = HashSet::new();
+		for l in lv {
+			for r in rv {
+				results.insert(vec![l.to_string(), r.to_string()].join(" "));
+			}
+		}
+		return results
+	}
+
+	// println!("{:?}", possible_breaks);
+
+	for d in 2 ..= l {
+		for i in 0 .. l - d + 1 {
+			let mut cnt = 0;
+			for j in i .. i + d - 1 {
+				if grid[i][j] > 0 && grid[j + 1][i + d - 1] > 0 {
+					let tmp = cartesian_prod(&possible_breaks[i * l + j], &possible_breaks[l * (j + 1) + i + d - 1]);
+					let ut = possible_breaks[i * l + i + d - 1].union(&tmp).map(|x| x.to_string()).collect::<HashSet<String>>();
+					possible_breaks[i * l + i + d - 1] = ut;
+				}
+				cnt += grid[i][j]*grid[j + 1][i + d - 1];
+			}
+			if dic_set.contains(&s[i .. i + d].to_string()) {
+				possible_breaks[i * l + i + d - 1].insert(s[i .. i + d].to_string());
+				cnt += 1
+			}
+			grid[i][i + d - 1] = cnt;
+		}
+	}
+
+	// for v in &grid {
+	// 	println!("{:?}", *v);
+	// }
+
+	if grid[0][l-1] > 0 {
+		// println!("{:?}", possible_breaks);
+		let mut r = Vec::new();
+		for e in &possible_breaks[l - 1] {
+			r.push(e.to_string());
+		}
+		return r;
+	}
+	return vec![];
 }
 
 pub fn word_break(s: String, word_dict: Vec<String>) -> bool {
-	println!("{:?}, {}", word_dict, s);
+	use std::collections::HashSet;
+	let mut dic_set = HashSet::new();
+	for i in &word_dict {
+		dic_set.insert(i);
+	}
+	let l = s.chars().count();
+	// print!("{}",l);
+	let mut grid = vec![vec![0 as u64; l]; l];
+	for i in 0 .. l {
+		if dic_set.contains(&s[i .. i + 1].to_string()) {
+			grid[i][i] = 1;
+		}
+	}
+	for d in 2 ..= l {
+		for i in 0 .. l - d + 1 {
+			let mut cnt = 0;
+			for j in i .. i + d - 1 {
+				cnt += grid[i][j]*grid[j + 1][i + d - 1];
+			}
+			if dic_set.contains(&s[i .. i + d].to_string()) {
+				cnt += 1
+			}
+			grid[i][i + d - 1] = cnt;
+		}
+	}
+	// for v in &grid {
+	// 	println!("{:?}", *v);
+	// }
+	if grid[0][l-1] > 0 {
+		return true
+	}
 	return false
 }
 
 pub fn max_coins(nums: Vec<i32>) -> i32 {
-	println!("{:?}", nums);
-	return 32
+	let mut p = Vec::new(); 
+	p.push(1);
+	for i in &nums {
+		p.push(*i);
+	}
+	p.push(1);
+
+	let l = p.len();
+
+	let mut cost = vec![vec![0; l]; l];
+	
+	for d in 2 .. l {
+		for i in 0 .. l - d {
+			for k in i + 1 .. i + d {
+				let q = cost[i][k] + cost[k][i + d] + p[i] * p[k] * p[i + d];
+				if q > cost[i][i + d] {
+					cost[i][i + d] = q;
+				}
+			}
+		}
+	}
+	println!("{:?}", cost);
+	return cost[0][l - 1]
 }
 
 // medium problems
